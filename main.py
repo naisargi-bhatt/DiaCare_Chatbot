@@ -43,21 +43,23 @@ def find_similar_answer(user_question, threshold=0.7):
     best_match_idx = scores.argmax().item()
     best_score = scores[best_match_idx].item()
 
-    if best_score >= threshold:  # ✅ Only return if similarity is high
+    if best_score >= threshold:  # only return if similarity is high
         return dataset_answers[best_match_idx]
     return None  # No match found
 
-def get_gemini_response(question):
+def get_gemini_response(question, max_words=60):
     """
-    Generate a response using Gemini AI if no match is found in the dataset.
+    Generate a concise response using Gemini AI.
     """
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
-        response = model.generate_content(question)
-        return response.text.strip()  # Clean response
+        prompt = f"Answer the following question in {max_words} words or less: {question}"
+        response = model.generate_content(prompt)
+        return response.text.strip()
 
     except Exception as e:
         return f"Error fetching response from Gemini API: {str(e)}"
+
 
 @app.post("/chat/")
 async def chat(request: QuestionRequest):
