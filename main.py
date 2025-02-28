@@ -54,13 +54,19 @@ def get_gemini_response(question, max_words=60):
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
         prompt = f"Answer the following question in {max_words} words or less: {question}"
+    except Exception as e:
         response = model.generate_content(prompt)
         return response.text.strip()
 
-    except Exception as e:
         return f"Error fetching response from Gemini API: {str(e)}"
 
+@app.get("/")
+def read_root():
+    return {"message": "FastAPI is running!"}
 
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
 @app.post("/chat/")
 async def chat(request: QuestionRequest):
     user_question = request.question.strip()
