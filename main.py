@@ -168,6 +168,10 @@ def get_gemini_response(question, max_words=60):
 @app.get("/")
 def read_root():
     return {"message": "FastAPI is running!"}
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Use Render's PORT or default to 8000
+    print(f"Starting server on port {port}...")  # Debugging log
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 @app.post("/chat/")
 async def chat(request: QuestionRequest):
@@ -181,8 +185,3 @@ async def chat(request: QuestionRequest):
     # Step 2: If no match, get response from Gemini API
     gemini_response = get_gemini_response(user_question)
     return {"source": "gemini", "response": gemini_response}
-
-# ✅ Corrected if __name__ == "__main__" condition
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
-    uvicorn.run(app, host="0.0.0.0", port=port)
