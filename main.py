@@ -191,7 +191,6 @@
 
 
 
-
 import os
 import json
 import pandas as pd
@@ -204,8 +203,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 GENAI_API_KEY = os.getenv("GENAI_API_KEY")
+PORT = int(os.getenv("PORT", 8000))  # Use Railway's PORT variable
+
 if not GENAI_API_KEY:
-    raise ValueError("GENAI_API_KEY is missing. Please set it in the .env file.")
+    raise ValueError("GENAI_API_KEY is missing. Please set it in Railway's environment variables.")
 
 # Initialize Google Generative AI model
 try:
@@ -214,14 +215,16 @@ try:
 except Exception as e:
     raise RuntimeError(f"Failed to initialize Gemini AI: {str(e)}")
 
-# Define path to dataset
+# Define dataset path
 DATASET_PATH = Path(__file__).parent / "diabetes_faq.csv"
-if not DATASET_PATH.exists():
-    raise FileNotFoundError(f"Dataset file '{DATASET_PATH}' not found!")
 
-# Load dataset
-faq_data = pd.read_csv(DATASET_PATH)
-faq_data.dropna(subset=["Question", "Answer"], inplace=True)  # Clean missing data
+# Load dataset (handle missing file gracefully)
+faq_data = None
+if DATASET_PATH.exists():
+    faq_data = pd.read_csv(DATASET_PATH)
+    faq_data.dropna(subset=["Question", "Answer"], inplace=True)
+else:
+    print(f"Warning: Dataset file '{DATASET_PATH}' not found. Proceeding without it.")
 
 # FastAPI app instance
 app = FastAPI()
@@ -245,21 +248,22 @@ def get_gemini_response(question: str, max_words: int = 60):
 def health_check():
     return {"status": "healthy"}
 
-# Route: Get answer from dataset
+# Route: Get answer from dataset or AI
 @app.post("/get_answer")
 def get_answer(request: QuestionRequest):
     user_question = request.question.lower()
-    
-    # Check if question exists in dataset
-    for _, row in faq_data.iterrows():
-        if user_question in row["Question"].lower():
-            return {"answer": row["Answer"]}
-    
+
+    # Check if dataset exists and find the answer
+    if faq_data is not None:
+        for _, row in faq_data.iterrows():
+            if user_question in row["Question"].lower():
+                return {"answer": row["Answer"]}
+
     # If not found, use AI model
     ai_response = get_gemini_response(user_question, request.max_words)
     return {"answer": ai_response}
 
-# Run the app locally
+# Run the app on Railway
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
