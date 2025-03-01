@@ -2,8 +2,9 @@ services:
   - type: web
     name: DiaCare_Chatbot
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
-      - key: GENAI_API_KEY # Add this
-        value: AIzaSyDG7cVaGVzmeH78ztkYGkDdI8PpFPYDRco # Replace with your actual key
+      - key: GENAI_API_KEY
+        sync: false

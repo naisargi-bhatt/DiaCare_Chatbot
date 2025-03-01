@@ -1,7 +1,7 @@
 fastapi
 uvicorn
-pandas
-sentence-transformers
-google-generativeai
-python-dotenv
 pydantic
+pandas
+google-generativeai
+sentence-transformers
+python-dotenv
