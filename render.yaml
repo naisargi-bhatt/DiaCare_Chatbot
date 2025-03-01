@@ -7,3 +7,5 @@ services:
     envVars:
       - key: PORT
         value: 8000
+      - key: GEMINI_API_KEY # Add this
+        value: AIzaSyDG7cVaGVzmeH78ztkYGkDdI8PpFPYDRco # Replace with your actual key
