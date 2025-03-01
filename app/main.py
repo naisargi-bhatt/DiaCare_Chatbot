@@ -90,5 +90,6 @@ async def chat(request: QuestionRequest):
     return {"response": gemini_response}
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
+    port = int(os.getenv("PORT", 8000))  
+    print(f"🚀 Running on port {port}") # Use Render's PORT or default to 8000
     uvicorn.run(app, host="0.0.0.0", port=port)
