@@ -4,3 +4,4 @@ pandas
 sentence-transformers
 google-generativeai
 python-dotenv
+pydantic
