@@ -85,6 +85,6 @@ async def chat(request: QuestionRequest):
     return {"response": gemini_response}
 
 if __name__== "__main__":
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 10000))
     logger.info(f"Starting server on port {port}")
     uvicorn.run("app.main:app", host="0.0.0.0", port=port)
