@@ -1,7 +1,6 @@
 fastapi
 uvicorn
-gunicorn
 pandas
-google-generativeai
+torch
 sentence-transformers
-python-dotenv
+google-generativeai
