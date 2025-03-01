@@ -72,4 +72,21 @@ def find_similar_answer(user_question, threshold=0.80):
 def get_gemini_response(question, max_words=60):
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
-        prompt = f"Answer the following question in {max
+        prompt = f"Answer the following question in {max_words} words or fewer: {question}"
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Error in Gemini API call: {str(e)}")
+        return "Sorry, I couldn't generate a response at this time."
+
+# Optional: Add an endpoint to test the API (not present in original code, but useful)
+@app.post("/ask")
+async def ask_question(request: QuestionRequest):
+    similar_answer = find_similar_answer(request.question)
+    if similar_answer:
+        return {"answer": similar_answer}
+    gemini_answer = get_gemini_response(request.question)
+    return {"answer": gemini_answer}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
