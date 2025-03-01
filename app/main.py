@@ -1,4 +1,3 @@
-# app/main.py
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -11,7 +10,7 @@ import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)  # Fixed: __name__ instead of _name_
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -40,19 +39,28 @@ app = FastAPI()
 # Initialize Google Gemini API
 genai.configure(api_key=GENAI_API_KEY)
 
-# Load Sentence Transformer Model
+# Load Sentence Transformer Model (lightweight, fast to load at startup)
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Encode all dataset questions
+# Store embeddings lazily (load on startup to avoid blocking port binding)
 dataset_questions = df["question"].astype(str).tolist()
 dataset_answers = df["answer"].astype(str).tolist()
-dataset_embeddings = model.encode(dataset_questions, convert_to_tensor=True)
+dataset_embeddings = None
+
+@app.on_event("startup")
+async def load_embeddings():
+    global dataset_embeddings
+    logger.info("Loading dataset embeddings...")
+    dataset_embeddings = model.encode(dataset_questions, convert_to_tensor=True)
+    logger.info("Embeddings loaded successfully.")
 
 # Define request model
 class QuestionRequest(BaseModel):
     question: str
 
 def find_similar_answer(user_question, threshold=0.80):
+    if dataset_embeddings is None:
+        raise ValueError("Embeddings not loaded yet. Please try again.")
     user_embedding = model.encode(user_question, convert_to_tensor=True)
     scores = util.pytorch_cos_sim(user_embedding, dataset_embeddings)[0]
     best_match_idx = scores.argmax().item()
@@ -83,8 +91,3 @@ async def chat(request: QuestionRequest):
         return {"response": answer}
     gemini_response = get_gemini_response(user_question)
     return {"response": gemini_response}
-
-if __name__== "__main__":
-    port = int(os.getenv("PORT", 10000))
-    logger.info(f"Starting server on port {port}")
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port)
