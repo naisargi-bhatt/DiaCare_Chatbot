@@ -72,22 +72,4 @@ def find_similar_answer(user_question, threshold=0.80):
 def get_gemini_response(question, max_words=60):
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
-        prompt = f"Answer the following question in {max_words} words or less: {question}"
-        response = model.generate_content(prompt)
-        return response.text.strip() if response.text else "Sorry, I couldn't generate a response."
-    except Exception as e:
-        logger.error(f"Gemini API error: {str(e)}")
-        return f"Error fetching response from Gemini API: {str(e)}"
-
-@app.get("/")
-def read_root():
-    return {"message": "FastAPI chatbot is running!"}
-
-@app.post("/chat/")
-async def chat(request: QuestionRequest):
-    user_question = request.question.strip()
-    answer = find_similar_answer(user_question)
-    if answer:
-        return {"response": answer}
-    gemini_response = get_gemini_response(user_question)
-    return {"response": gemini_response}
+        prompt = f"Answer the following question in {max
