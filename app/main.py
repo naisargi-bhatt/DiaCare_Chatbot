@@ -87,7 +87,7 @@ load_dotenv()
 # Load API key securely
 GENAI_API_KEY = os.getenv("GENAI_API_KEY")
 #  Load the dataset
-df = pd.read_csv("diabetes_faq.csv")
+df = pd.read_csv("app/diabetes_faq.csv")
 
 #  Initialize FastAPI
 app = FastAPI()
@@ -163,9 +163,9 @@ async def chat(request: QuestionRequest):
     gemini_response = get_gemini_response(user_question)
     return {"source": "gemini", "response": gemini_response}
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# if __name__ == "__main__":
+#     port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
+#     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 
