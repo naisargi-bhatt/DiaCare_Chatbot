@@ -46,7 +46,6 @@ def find_similar_answer(user_question, threshold=0.7):
     if best_score >= threshold:  # only return if similarity is high
         return dataset_answers[best_match_idx]
     return None  # No match found
-
 def get_gemini_response(question, max_words=60):
     """
     Generate a concise response using Gemini AI.
@@ -54,19 +53,29 @@ def get_gemini_response(question, max_words=60):
     try:
         model = genai.GenerativeModel("gemini-1.5-pro-latest")
         prompt = f"Answer the following question in {max_words} words or less: {question}"
-    except Exception as e:
         response = model.generate_content(prompt)
-        return response.text.strip()
-
+        return response.text.strip()  # Corrected position of return
+    except Exception as e:
         return f"Error fetching response from Gemini API: {str(e)}"
+
+
+# def get_gemini_response(question, max_words=60):
+#     """
+#     Generate a concise response using Gemini AI.
+#     """
+#     try:
+#         model = genai.GenerativeModel("gemini-1.5-pro-latest")
+#         prompt = f"Answer the following question in {max_words} words or less: {question}"
+#     except Exception as e:
+#         response = model.generate_content(prompt)
+#         return response.text.strip()
+
+#         return f"Error fetching response from Gemini API: {str(e)}"
 
 @app.get("/")
 def read_root():
     return {"message": "FastAPI is running!"}
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
-    uvicorn.run(app, host="0.0.0.0", port=port)
 @app.post("/chat/")
 async def chat(request: QuestionRequest):
     user_question = request.question.strip()
@@ -79,3 +88,7 @@ async def chat(request: QuestionRequest):
     #  Step 2: If no match, get response from Gemini API
     gemini_response = get_gemini_response(user_question)
     return {"source": "gemini", "response": gemini_response}
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Use Render's PORT or default to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
