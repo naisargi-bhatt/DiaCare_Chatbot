@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: fastapi-app # Change to your app name
-    envVars:
-      - key: PORT
-        value: "8000" # Let Render auto-assign or manually set it
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: "/"
